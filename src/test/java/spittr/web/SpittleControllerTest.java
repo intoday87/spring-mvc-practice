@@ -24,28 +24,7 @@ public class SpittleControllerTest {
 
     private static final int SPITTLE_COUNT = 20;
     public static final String VIEW_FILE_PATH = "/webapp/WEB-INF/views/spittles.jsp";
-
-    @Test
-    public void name() throws Exception {
-        List<Spittle> expectedSpittles = createSpittleList(SPITTLE_COUNT);
-        SpittleRepository spittleRepository = mock(SpittleRepository.class);
-
-        when(spittleRepository.fineSpittles(Long.MAX_VALUE, SPITTLE_COUNT))
-                .thenReturn(expectedSpittles);
-
-        SpittleController controller = new SpittleController(spittleRepository);
-
-        MockMvc mockMvc = standaloneSetup(controller)
-                .setSingleView(new InternalResourceView(VIEW_FILE_PATH))
-                .build();
-
-        mockMvc.perform(get("/spittles"))
-                .andExpect(view().name("spittles"))
-                .andExpect(model().attributeExists("spittleList"))
-                .andExpect(model().attribute("spittleList", hasItems(expectedSpittles.toArray())));
-
-        verify(spittleRepository).fineSpittles(Long.MAX_VALUE, SPITTLE_COUNT);
-    }
+    public static final int MAX = 238900;
 
     private List<Spittle> createSpittleList(int count) {
         List<Spittle> spittles = new ArrayList<>();
@@ -59,7 +38,7 @@ public class SpittleControllerTest {
     public void shouldShowPagedSpittles() throws Exception {
         List<Spittle> expectedSpittles = createSpittleList(50);
         SpittleRepository spittleRepository = mock(SpittleRepository.class);
-        when(spittleRepository.fineSpittles(238900, 50))
+        when(spittleRepository.findSpittles(MAX, SPITTLE_COUNT))
                 .thenReturn(expectedSpittles);
 
         SpittleController controller = new SpittleController(spittleRepository);
@@ -67,9 +46,11 @@ public class SpittleControllerTest {
                 .setSingleView(new InternalResourceView(VIEW_FILE_PATH))
                 .build();
 
-        mvc.perform(get("/spittles?max=238900&count=50"))
+        mvc.perform(get("/spittles?max=" + MAX + "&count=" + SPITTLE_COUNT))
                 .andExpect(view().name("spittles"))
                 .andExpect(model().attributeExists("spittleList"))
                 .andExpect(model().attribute("spittleList", hasItems(expectedSpittles.toArray())));
+
+        verify(spittleRepository).findSpittles(MAX, SPITTLE_COUNT);
     }
 }
